@@ -1,6 +1,5 @@
 package com.semihbkgr.springboottotp.controller;
 
-import com.google.zxing.qrcode.QRCodeWriter;
 import com.semihbkgr.springboottotp.qr.QrCodeGenerator;
 import com.semihbkgr.springboottotp.user.UserService;
 import dev.turingcomplete.kotlinonetimepassword.GoogleAuthenticator;
@@ -26,7 +25,6 @@ public class AppController {
     private static final int QR_CODE_SIZE = 200;
 
     private final UserService userService;
-    private final QRCodeWriter qrCodeWriter;
     private final QrCodeGenerator qrCodeGenerator;
 
     @GetMapping
@@ -37,6 +35,11 @@ public class AppController {
     @GetMapping("/signin")
     public String signin() {
         return "signin";
+    }
+
+    @GetMapping("/totp")
+    public String totp() {
+        return "totp";
     }
 
     @GetMapping("/profile")
@@ -59,7 +62,7 @@ public class AppController {
     }
 
     @PostMapping("/2fa")
-    public String verify2fa(@RequestParam("totp") String totp, HttpServletRequest request) {
+    public String verify2fa(@RequestParam("totp") String totp) {
         var username = SecurityContextHolder.getContext().getAuthentication().getName();
         var user = userService.findByUsername(username);
         var secretKey = user.getUserDetail().getSecretKey();
@@ -84,9 +87,30 @@ public class AppController {
         return null;
     }
 
-    @GetMapping("/totp")
-    public String totp() {
-        return "totp";
+    @GetMapping("/deactivate")
+    public String deactivate() {
+        return "deactivate";
+    }
+
+    @PostMapping("/deactivate")
+    public String verifyDeactivation(@RequestParam("totp") String totp) {
+        var username = SecurityContextHolder.getContext().getAuthentication().getName();
+        var user = userService.findByUsername(username);
+        var is2faEnabled = user.getUserDetail().getIs2faEnabled();
+        if (is2faEnabled == null || !is2faEnabled) {
+            return "redirect:/profile";
+        }
+        var secretKey = user.getUserDetail().getSecretKey();
+        var isCorrectTotp = new GoogleAuthenticator(secretKey.getBytes(StandardCharsets.UTF_8)).isValid(totp, new Date());
+        if (isCorrectTotp) {
+            user.getUserDetail().setSecretKey(null);
+            user.getUserDetail().setIs2faEnabled(false);
+            userService.save(user);
+            return "redirect:/profile";
+        } else {
+            return "redirect:/deactivate?incorrect";
+        }
+
     }
 
 }
