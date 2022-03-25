@@ -12,6 +12,7 @@
 <h3 th:text="'Firstname: '+${user.userDetail.firstname}"></h3>
 <h3 th:text="'Lastname: '+${user.userDetail.lastname}"></h3>
 <h3 th:text="'Email: '+${user.userDetail.email}"></h3>
-<h3 th:text="'2FA: '+${user.userDetail.twofaEnabled}"></h3>
+<h3 th:text="'2FA: '+${user.userDetail.is2faEnabled}"></h3>
+<a href="/2fa">Activate 2FA</a>
 </body>
 </html>

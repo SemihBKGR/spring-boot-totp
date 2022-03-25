@@ -10,6 +10,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import java.util.Locale;
 import java.util.stream.IntStream;
 
 @Slf4j
@@ -24,10 +25,9 @@ public class SpringBootTotpApplication {
     public CommandLineRunner initUser(UserRepository repository) {
         return (String... args) -> {
             var faker = Faker.instance();
-            log.info("-".repeat(50));
             IntStream.range(0, 10)
                     .mapToObj(i -> {
-                        var username = faker.name().firstName().toLowerCase();
+                        var username = faker.name().firstName().toLowerCase(Locale.ENGLISH);
                         var password = "{noop}" + faker.internet().password();
                         var user = new User();
                         user.setUsername(username);
@@ -36,14 +36,13 @@ public class SpringBootTotpApplication {
                         userDetails.setFirstname(username);
                         userDetails.setLastname(faker.name().lastName());
                         userDetails.setEmail(faker.internet().emailAddress());
-                        userDetails.setTwofaEnabled(false);
+                        userDetails.setIs2faEnabled(false);
                         user.setUserDetail(userDetails);
                         return user;
                     }).forEach(user -> {
                         repository.save(user);
                         log.info("Username: {}, Password: {}", user.getUsername(), user.getPassword());
                     });
-            log.info("-".repeat(50));
         };
     }
 

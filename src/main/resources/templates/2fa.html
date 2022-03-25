@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>2FA</title>
+</head>
+<body>
+<h1>2FA</h1>
+<img alt="qr code" height="200" src="/2fa/qr" width="200">
+<form action="/2fa" method="post">
+    <div>
+        <label for="totp">TOTP</label>
+        <input id="totp" name="totp" type="text">
+    </div>
+    <input th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+    <button type="submit">Submit</button>
+</form>
+<div th:if="${param.incorrect != null}">
+    <p>Incorrect TOTP</p>
+</div>
+</body>
+</html>

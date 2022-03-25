@@ -19,7 +19,7 @@ public class UserDetail {
 
     private String email;
 
-    private Boolean twofaEnabled;
+    private Boolean is2faEnabled;
 
     private String secretKey;
 
